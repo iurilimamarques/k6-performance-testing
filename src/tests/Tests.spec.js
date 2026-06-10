@@ -9,13 +9,15 @@ export const RateContentOK = new Rate('content_OK');
 
 export const options = {
   thresholds: {
-    http_req_failed: ['rate<0.30'],
-    get_contacts: ['p(99)<500'],
-    content_OK: ['rate>0.95']
+    // 90% das respostas com tempo abaixo de 6800ms
+    http_req_duration: ['p(90)<6800'],
+    // menos de 25% das requisicoes podem dar erro
+    http_req_failed: ['rate<0.25']
   },
   stages: [
-    { duration: '10s', target: 2 },
-    { duration: '15s', target: 5 }
+    { duration: '70s', target: 7 }, // sobe ate 7 VUs
+    { duration: '70s', target: 92 }, // sobe ate o maximo de 92 VUs
+    { duration: '70s', target: 0 } // desce ate 0 (total 3.5 min)
   ]
 };
 
@@ -27,7 +29,7 @@ export function handleSummary(data) {
 }
 
 export default function () {
-  const baseUrl = 'https://petstore.swagger.io/v2/store/inventory';
+  const baseUrl = 'https://martinfowler.com/microservices/';
 
   const params = {
     headers: {
